@@ -9,6 +9,11 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 
+builder.Services.AddStackExchangeRedisCache(options =>
+{
+    options.Configuration = builder.Configuration["RedisCacheUrl"];
+});
+
 builder.Services.AddTransient<TicketsDbContext>();
 builder.Services.AddSingleton<TicketValidator>();
 builder.Services.AddSingleton<TicketsService>();
