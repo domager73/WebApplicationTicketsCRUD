@@ -1,5 +1,7 @@
 using WebApplicationTicketsCRUD.Db.DbConnector;
+using WebApplicationTicketsCRUD.Exceptions;
 using WebApplicationTicketsCRUD.Services;
+using WebApplicationTicketsCRUD.Validators;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -8,6 +10,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 
 builder.Services.AddTransient<TicketsDbContext>();
+builder.Services.AddSingleton<TicketValidator>();
 builder.Services.AddSingleton<TicketsService>();
 builder.Services.AddSingleton<TicketTypeService>();
     
@@ -30,6 +33,8 @@ app.UseCors(cors => cors
     .AllowAnyHeader()
     .AllowAnyMethod()
 );
+
+app.UseMiddleware<ExceptionHandlingMiddleware>();
 
 app.UseHttpsRedirection();
 

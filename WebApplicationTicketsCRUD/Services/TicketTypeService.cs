@@ -14,13 +14,11 @@ public class TicketTypeService
 
     public List<ResponseTicketTypeDto> GetAllTicketTypes()
     {
-        var a = _dbContext.TicketTypes
+        return _dbContext.TicketTypes
             .Select(item => new ResponseTicketTypeDto()
             {
                 Id = item.Id,
                 Name = item.Name
             }).ToList();
-        
-        return a;
     }
 }
