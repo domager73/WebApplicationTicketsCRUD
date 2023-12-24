@@ -20,4 +20,16 @@ public class TicketsController : ControllerBase
     {
         return _ticketsService.GetAllTickets();
     }
+
+    [HttpDelete("delete/{id}")]
+    public void GetAllTickets(int id)
+    {
+        _ticketsService.DeleteById(id);
+    }
+    
+    [HttpPost("add")]
+    public void AddNewTicket(RequestTicketDto requestTicketDto)
+    {
+        _ticketsService.CreateNewTicket(requestTicketDto);
+    }
 }

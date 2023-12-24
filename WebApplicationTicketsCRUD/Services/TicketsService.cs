@@ -25,6 +25,25 @@ public class TicketsService
                 OwnerLastName = item.OwnerLastName,
                 Phone = item.Phone,
                 TicketType = item.TicketType.Name
-            }).ToList();
+            }).OrderBy(item => item.Id).ToList();
+    }
+    public void CreateNewTicket(RequestTicketDto responseTicketDto)
+    {
+        var ticket = new Ticket()
+        {
+            OwnerLastName = responseTicketDto.OwnerLastName,
+            Phone = responseTicketDto.Phone,
+            OwnerFirstName = responseTicketDto.OwnerFirstName,
+            TicketTypeId = responseTicketDto.IdTicketType,
+        };
+        
+        _dbContext.Tickets.Add(ticket);
+        _dbContext.SaveChanges();
+    }
+
+    public void DeleteById(int id)
+    {
+        _dbContext.Tickets.Remove(_dbContext.Tickets.FirstOrDefault(ticket => ticket.Id == id)!);
+        _dbContext.SaveChanges();
     }
 }
