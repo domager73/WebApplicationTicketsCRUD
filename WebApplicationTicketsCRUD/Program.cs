@@ -1,6 +1,7 @@
 using WebApplicationTicketsCRUD.Db.DbConnector;
 using WebApplicationTicketsCRUD.Exceptions;
 using WebApplicationTicketsCRUD.Services;
+using WebApplicationTicketsCRUD.Util;
 using WebApplicationTicketsCRUD.Validators;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -14,10 +15,13 @@ builder.Services.AddStackExchangeRedisCache(options =>
     options.Configuration = builder.Configuration["RedisCacheUrl"];
 });
 
+builder.Services.AddSingleton<RedisUtil>();
+
 builder.Services.AddTransient<TicketsDbContext>();
 builder.Services.AddSingleton<TicketValidator>();
 builder.Services.AddSingleton<TicketsService>();
 builder.Services.AddSingleton<TicketTypeService>();
+builder.Services.AddSingleton<AuthService>();
     
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
