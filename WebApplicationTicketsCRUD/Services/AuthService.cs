@@ -1,6 +1,12 @@
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
+using Microsoft.IdentityModel.Tokens;
 using WebApplicationTicketsCRUD.Db.DbConnector;
+using WebApplicationTicketsCRUD.Dto;
 using WebApplicationTicketsCRUD.Exceptions;
 using WebApplicationTicketsCRUD.Util;
+using JwtRegisteredClaimNames = Microsoft.IdentityModel.JsonWebTokens.JwtRegisteredClaimNames;
 
 namespace WebApplicationTicketsCRUD.Services;
 
@@ -8,36 +14,57 @@ public class AuthService
 {
     private RedisUtil _cache;
     private Random _random;
+    private IConfiguration _configuration;
 
-    public AuthService(RedisUtil cache)
+    public AuthService(RedisUtil cache, IConfiguration configuration)
     {
         _cache = cache;
+        _configuration = configuration;
         _random = new Random();
     }
 
-    public void Login(string email)
+    public void Login(RequestUserDto user)
     {
         int randomCode = _random.Next(1000, 9999 + 1);
-        
-        _cache.Save<int>(email, randomCode);
+
+        _cache.Save<int>(user.Email, randomCode);
     }
-    
-    public void VerifyLogin(string email, int code)
+
+    public string VerifyLogin(RequestUserWithCodeDto userWithCode)
     {
-        if (_cache.ExistData(email))
+        if (_cache.ExistData(userWithCode.Email))
         {
-            throw new UserException("VerifyLogin Exception", $"data with {email} not found", 400);
+            throw new UserException("VerifyLogin Exception", $"data with {userWithCode.Email} not found", 400);
         }
 
-        int codeFromRedis = _cache.Get<int>(email);
+        int codeFromRedis = _cache.Get<int>(userWithCode.Email);
 
-        if (codeFromRedis != code)
+        if (codeFromRedis != userWithCode.Code)
         {
             throw new UserException("VerifyLogin Exception", $"Incorrect code", 400);
         }
         else
         {
-            _cache.Remove(email);
+            Claim[] claims = new[]
+            {
+                new Claim(JwtRegisteredClaimNames.Sub, userWithCode.Email),
+                new Claim(JwtRegisteredClaimNames.Iat, DateTime.UtcNow.ToFileTimeUtc().ToString()),
+            };
+
+            SymmetricSecurityKey key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));
+            SigningCredentials signIn = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+
+            JwtSecurityToken token = new JwtSecurityToken(
+                _configuration["Jwt:Issuer"],
+                _configuration["Jwt:Audience"],
+                claims,
+                expires: DateTime.UtcNow.AddSeconds(60),
+                signingCredentials: signIn);
+            
+            _cache.Remove(userWithCode.Email);
+
+            return new JwtSecurityTokenHandler().WriteToken(token);
+
         }
     }
 }

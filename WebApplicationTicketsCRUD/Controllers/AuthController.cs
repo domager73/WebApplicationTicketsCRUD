@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using WebApplicationTicketsCRUD.Dto;
 using WebApplicationTicketsCRUD.Services;
 
 namespace WebApplicationTicketsCRUD.Controllers;
@@ -15,14 +16,14 @@ public class AuthController : ControllerBase
     }
 
     [HttpPost("login")]
-    public void Login(string email)
+    public void Login(RequestUserDto userDto)
     {
-        _authService.Login(email);
+        _authService.Login(userDto);
     }
 
     [HttpPost("verify-login")]
-    public void VerifyLogin(string email, int code)
+    public string VerifyLogin(RequestUserWithCodeDto userWithCode)
     {
-        _authService.VerifyLogin(email, code);
+        return _authService.VerifyLogin(userWithCode);
     }
 }

@@ -1,9 +1,11 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using WebApplicationTicketsCRUD.Dto;
 using WebApplicationTicketsCRUD.Services;
 
 namespace WebApplicationTicketsCRUD.Controllers;
 
+[Authorize]
 [ApiController]
 [Route("ticket-types/")]
 public class TicketTypesController : ControllerBase
