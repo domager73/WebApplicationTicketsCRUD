@@ -1,15 +1,21 @@
 using System.Reflection;
 using System.Text;
+using Confluent.Kafka;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using WebApplicationTicketsCRUD.Db.DbConnector;
 using WebApplicationTicketsCRUD.Exceptions;
+using WebApplicationTicketsCRUD.Kafka;
 using WebApplicationTicketsCRUD.Services;
 using WebApplicationTicketsCRUD.Util;
 using WebApplicationTicketsCRUD.Validators;
 
 var builder = WebApplication.CreateBuilder(args);
+
+
+var producerConfiguration = new ProducerConfig();
+builder.Configuration.Bind("producerconfiguration", producerConfiguration);
 
 // Add services to the container.
 
@@ -20,7 +26,9 @@ builder.Services.AddStackExchangeRedisCache(options =>
     options.Configuration = builder.Configuration["RedisCacheUrl"];
 });
 
+builder.Services.AddSingleton<ProducerConfig>(producerConfiguration);
 builder.Services.AddSingleton<RedisUtil>();
+builder.Services.AddSingleton<TestKafka>();
 
 builder.Services.AddTransient<TicketsDbContext>();
 builder.Services.AddSingleton<TicketValidator>();

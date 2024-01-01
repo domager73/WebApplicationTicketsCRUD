@@ -2,9 +2,9 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using Microsoft.IdentityModel.Tokens;
-using WebApplicationTicketsCRUD.Db.DbConnector;
 using WebApplicationTicketsCRUD.Dto;
 using WebApplicationTicketsCRUD.Exceptions;
+using WebApplicationTicketsCRUD.Kafka;
 using WebApplicationTicketsCRUD.Util;
 using JwtRegisteredClaimNames = Microsoft.IdentityModel.JsonWebTokens.JwtRegisteredClaimNames;
 
@@ -15,16 +15,20 @@ public class AuthService
     private RedisUtil _cache;
     private Random _random;
     private IConfiguration _configuration;
+    private TestKafka _kafka;
 
-    public AuthService(RedisUtil cache, IConfiguration configuration)
+    public AuthService(RedisUtil cache, IConfiguration configuration, TestKafka kafka)
     {
         _cache = cache;
         _configuration = configuration;
+        _kafka = kafka;
         _random = new Random();
     }
 
     public void Login(RequestUserDto user)
     {
+        _kafka.SendNotifyToLocalConsole($"Запрос на логинацию по {user.Email}");
+        
         int randomCode = _random.Next(1000, 9999 + 1);
 
         _cache.Save<int>(user.Email, randomCode);
