@@ -14,5 +14,6 @@ public class TestKafka
     public void SendNotifyToLocalConsole(String str)
     {
         _producer.Produce("quickstart", new Message<Null, string> { Value = str });
+        _producer.Flush(TimeSpan.FromSeconds(3));
     }
 }
