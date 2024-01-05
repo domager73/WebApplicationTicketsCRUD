@@ -7,11 +7,13 @@ namespace WebApplicationTicketsCRUD.Util;
 
 public static class Jwt
 {
+    private static JwtSecurityTokenHandler _jwtSecurityTokenHandler = new JwtSecurityTokenHandler();
+
     public static JwtSecurityToken CreateNewJwtToken(string email, IConfiguration configuration)
     {
         Claim[] claims = new[]
         {
-            new Claim(JwtRegisteredClaimNames.Sub, email),
+            new Claim(JwtRegisteredClaimNames.Email, email),
             new Claim(JwtRegisteredClaimNames.Iat, DateTime.UtcNow.ToFileTimeUtc().ToString()),
         };
 
@@ -26,5 +28,19 @@ public static class Jwt
             signingCredentials: signIn);
 
         return token;
+    }
+
+    public static string GetEmailInJwt(HttpRequest request)
+    {
+        var handler = new JwtSecurityTokenHandler();
+
+        string header = request.Headers.Authorization!;
+        header = header.Replace("Bearer ", "");
+
+        var token = handler.ReadToken(header) as JwtSecurityToken;
+
+        var email = token!.Claims.First(claim => claim.Type == "email").Value;
+
+        return email;
     }
 }

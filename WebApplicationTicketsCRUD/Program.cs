@@ -1,4 +1,3 @@
-using System.Reflection;
 using System.Text;
 using Confluent.Kafka;
 using Microsoft.AspNetCore.Authentication.JwtBearer;

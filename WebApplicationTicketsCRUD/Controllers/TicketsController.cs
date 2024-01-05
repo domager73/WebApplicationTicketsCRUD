@@ -1,7 +1,9 @@
+using System.IdentityModel.Tokens.Jwt;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using WebApplicationTicketsCRUD.Dto;
 using WebApplicationTicketsCRUD.Services;
+using WebApplicationTicketsCRUD.Util;
 
 namespace WebApplicationTicketsCRUD.Controllers;
 
@@ -37,6 +39,15 @@ public class TicketsController : ControllerBase
 
     [HttpPost("get-by-email/{email}")]
     public List<ResponseTicketDto> GetTicketsByEmail(string email){
+        return _ticketsService.GetTicketsByEmail(email);
+    }
+    
+    [HttpPost("get-my")]
+    public List<ResponseTicketDto> GetMyTickets()
+    {
+        var email = Jwt.GetEmailInJwt(Request);
+
+
         return _ticketsService.GetTicketsByEmail(email);
     }
 }
