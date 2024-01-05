@@ -1,74 +1,62 @@
-using Microsoft.EntityFrameworkCore;
-using WebApplicationTicketsCRUD.Db.DbConnector;
-using WebApplicationTicketsCRUD.Db.Models;
 using WebApplicationTicketsCRUD.Dto;
 using WebApplicationTicketsCRUD.Exceptions;
-using WebApplicationTicketsCRUD.Validators;
+using WebApplicationTicketsCRUD.Repositories;
 
 namespace WebApplicationTicketsCRUD.Services;
 
 public class TicketsService
 {
-    private TicketsDbContext _dbContext;
-    private TicketValidator _ticketValidator;
+    private readonly TicketRepository _ticketRepository;
+    private readonly TicketTypeRepository _ticketTypeRepository;
+    private readonly UserRepository _userRepository;
 
-    public TicketsService(TicketsDbContext dbContext, TicketValidator ticketValidator)
+    public TicketsService(TicketRepository ticketRepository,
+        TicketTypeRepository ticketTypeRepository, UserRepository userRepository)
     {
-        _dbContext = dbContext;
-        _ticketValidator = ticketValidator;
+        _ticketTypeRepository = ticketTypeRepository;
+        _userRepository = userRepository;
+        _ticketRepository = ticketRepository;
     }
 
     public List<ResponseTicketDto> GetAllTickets()
     {
-        return _dbContext.Tickets
-            .Include(item => item.TicketType)
-            .Select(item => new ResponseTicketDto()
-            {
-                Id = item.Id,
-                OwnerFirstName = item.OwnerFirstName,
-                OwnerLastName = item.OwnerLastName,
-                Phone = item.Phone,
-                TicketType = item.TicketType.Name
-            }).OrderBy(item => item.Id).ToList();
+        return _ticketRepository.GetAll();
     }
+
+    public List<ResponseTicketDto> GetTicketsByEmail(string email)
+    {
+        return _ticketRepository.GetTicketsByEmail(email);
+    }
+
     public void CreateNewTicket(RequestTicketDto responseTicketDto)
     {
-        var ticketType = _dbContext.TicketTypes.FirstOrDefault(ticket => ticket.Id == responseTicketDto.IdTicketType);
+        var ticketType = _ticketTypeRepository.GetById(responseTicketDto.ticketTypeId);
+        var user = _userRepository.GetByEmail(responseTicketDto.Email);
 
         if (ticketType == null)
         {
-            throw new UserException("CreateNewTicket Exception", $"ticketTypes with {responseTicketDto.IdTicketType} not found", 400);
+            throw new UserException("CreateNewTicket Exception",
+                $"ticketTypes with {responseTicketDto.ticketTypeId} not found", 400);
         }
 
-        var validate = _ticketValidator.Validate(responseTicketDto);
-        
-        if (!validate.IsValid)
+        if (user == null)
         {
-            throw new UserException("CreateNewTicket Exception", $"request ticket dto is not validate", 400);
+            throw new UserException("CreateNewTicket Exception",
+                $"user with {responseTicketDto.ticketTypeId} not found", 400);
         }
 
-        var ticket = new Ticket()
-        {
-            OwnerLastName = responseTicketDto.OwnerLastName,
-            Phone = responseTicketDto.Phone,
-            OwnerFirstName = responseTicketDto.OwnerFirstName,
-            TicketTypeId = responseTicketDto.IdTicketType,
-        };
-
-        _dbContext.Tickets.Add(ticket);
-        _dbContext.SaveChanges();
+        _ticketRepository.Create(user.Id, responseTicketDto.ticketTypeId);
     }
 
     public void DeleteById(int id)
     {
-        var ticket = _dbContext.Tickets.FirstOrDefault(ticket => ticket.Id == id);
-        
+        var ticket = _ticketRepository.GetById(id);
+
         if (ticket == null)
         {
             throw new UserException("DeleteById Exception", $"ticket with {id} not found", 400);
         }
 
-        _dbContext.Tickets.Remove(ticket);
-        _dbContext.SaveChanges();
+        _ticketRepository.Remove(ticket);
     }
 }

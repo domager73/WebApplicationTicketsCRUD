@@ -10,7 +10,7 @@ namespace WebApplicationTicketsCRUD.Controllers;
 [Route("ticket-types/")]
 public class TicketTypesController : ControllerBase
 {
-    private TicketTypeService _ticketTypeService;
+    private readonly TicketTypeService _ticketTypeService;
 
     public TicketTypesController(TicketTypeService ticketTypeService)
     {

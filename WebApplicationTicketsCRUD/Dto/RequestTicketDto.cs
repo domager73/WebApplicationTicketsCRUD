@@ -2,11 +2,7 @@ namespace WebApplicationTicketsCRUD.Dto;
 
 public class RequestTicketDto
 {
-    public string OwnerFirstName { get; set; }
+    public string Email { get; set; }
 
-    public string OwnerLastName { get; set; }
-
-    public string Phone { get; set; }
-
-    public int IdTicketType { get; set; }
+    public int ticketTypeId { get; set; }
 }

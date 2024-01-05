@@ -10,7 +10,7 @@ namespace WebApplicationTicketsCRUD.Controllers;
 [Route("tickets/")]
 public class TicketsController : ControllerBase
 {
-    private TicketsService _ticketsService;
+    private readonly TicketsService _ticketsService;
 
     public TicketsController(TicketsService ticketsService)
     {
@@ -33,5 +33,10 @@ public class TicketsController : ControllerBase
     public void AddNewTicket(RequestTicketDto requestTicketDto)
     {
         _ticketsService.CreateNewTicket(requestTicketDto);
+    }
+
+    [HttpPost("get-by-email/{email}")]
+    public List<ResponseTicketDto> GetTicketsByEmail(string email){
+        return _ticketsService.GetTicketsByEmail(email);
     }
 }

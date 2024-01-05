@@ -8,7 +8,7 @@ namespace WebApplicationTicketsCRUD.Controllers;
 [Route("auth/")]
 public class AuthController : ControllerBase
 {
-    private AuthService _authService;
+    private readonly AuthService _authService;
 
     public AuthController(AuthService authService)
     {

@@ -1,24 +1,19 @@
-using WebApplicationTicketsCRUD.Db.DbConnector;
 using WebApplicationTicketsCRUD.Dto;
+using WebApplicationTicketsCRUD.Repositories;
 
 namespace WebApplicationTicketsCRUD.Services;
 
 public class TicketTypeService
 {
-    private TicketsDbContext _dbContext;
-
-    public TicketTypeService(TicketsDbContext dbContext)
+    private readonly TicketTypeRepository _ticketTypeRepository;
+    
+    public TicketTypeService(TicketTypeRepository ticketTypeRepository)
     {
-        _dbContext = dbContext;
+        _ticketTypeRepository = ticketTypeRepository;
     }
 
     public List<ResponseTicketTypeDto> GetAllTicketTypes()
     {
-        return _dbContext.TicketTypes
-            .Select(item => new ResponseTicketTypeDto()
-            {
-                Id = item.Id,
-                Name = item.Name
-            }).ToList();
+        return _ticketTypeRepository.GetAll();
     }
 }

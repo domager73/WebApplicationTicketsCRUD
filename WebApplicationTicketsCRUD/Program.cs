@@ -7,6 +7,7 @@ using Microsoft.OpenApi.Models;
 using WebApplicationTicketsCRUD.Db.DbConnector;
 using WebApplicationTicketsCRUD.Exceptions;
 using WebApplicationTicketsCRUD.Kafka;
+using WebApplicationTicketsCRUD.Repositories;
 using WebApplicationTicketsCRUD.Services;
 using WebApplicationTicketsCRUD.Util;
 using WebApplicationTicketsCRUD.Validators;
@@ -31,7 +32,13 @@ builder.Services.AddSingleton<RedisUtil>();
 builder.Services.AddSingleton<TestKafka>();
 
 builder.Services.AddTransient<TicketsDbContext>();
-builder.Services.AddSingleton<TicketValidator>();
+
+builder.Services.AddSingleton<UserValidator>();
+
+builder.Services.AddTransient<UserRepository>();
+builder.Services.AddTransient<TicketTypeRepository>();
+builder.Services.AddTransient<TicketRepository>();
+
 builder.Services.AddSingleton<TicketsService>();
 builder.Services.AddSingleton<TicketTypeService>();
 builder.Services.AddSingleton<AuthService>();
@@ -49,17 +56,12 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJw
         ValidIssuer = builder.Configuration["Jwt:Issuer"],
         LifetimeValidator = (before, expires, token, parameters) =>
         {
-            // DateTime fixExpires = expires.Value;
-            // fixExpires = fixExpires.AddHours(3);
-            // bool result = fixExpires >= DateTime.Now;
             return expires.Value >= DateTime.UtcNow;
         },
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]))
     };
 });
 
-    
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
