@@ -5,9 +5,9 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace WebApplicationTicketsCRUD.Util;
 
-public static class Jwt
+public static class JwtUtil
 {
-    private static JwtSecurityTokenHandler _jwtSecurityTokenHandler = new JwtSecurityTokenHandler();
+    private static readonly JwtSecurityTokenHandler JwtSecurityTokenHandler = new JwtSecurityTokenHandler();
 
     public static JwtSecurityToken CreateNewJwtToken(string email, IConfiguration configuration)
     {
@@ -32,12 +32,10 @@ public static class Jwt
 
     public static string GetEmailInJwt(HttpRequest request)
     {
-        var handler = new JwtSecurityTokenHandler();
-
         string header = request.Headers.Authorization!;
         header = header.Replace("Bearer ", "");
 
-        var token = handler.ReadToken(header) as JwtSecurityToken;
+        var token = JwtSecurityTokenHandler.ReadToken(header) as JwtSecurityToken;
 
         var email = token!.Claims.First(claim => claim.Type == "email").Value;
 

@@ -14,8 +14,8 @@ using WebApplicationTicketsCRUD.Validators;
 var builder = WebApplication.CreateBuilder(args);
 
 
-var producerConfiguration = new ProducerConfig();
-builder.Configuration.Bind("producerconfiguration", producerConfiguration);
+// var producerConfiguration = new ProducerConfig();
+// builder.Configuration.Bind("producerconfiguration", producerConfiguration);
 
 // Add services to the container.
 
@@ -26,9 +26,9 @@ builder.Services.AddStackExchangeRedisCache(options =>
     options.Configuration = builder.Configuration["RedisCacheUrl"];
 });
 
-builder.Services.AddSingleton<ProducerConfig>(producerConfiguration);
+// builder.Services.AddSingleton<ProducerConfig>(producerConfiguration);
 builder.Services.AddSingleton<RedisUtil>();
-builder.Services.AddSingleton<TestKafka>();
+// builder.Services.AddSingleton<TestKafka>();
 
 builder.Services.AddTransient<TicketsDbContext>();
 

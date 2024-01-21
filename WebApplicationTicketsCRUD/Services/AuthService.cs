@@ -15,17 +15,27 @@ public class AuthService
     private readonly RedisUtil _cache;
     private readonly Random _random;
     private readonly IConfiguration _configuration;
-    private readonly TestKafka _kafka;
+    // private readonly TestKafka _kafka;
     private readonly UserRepository _userRepository;
     private readonly UserValidator _userValidator;
 
 
-    public AuthService(RedisUtil cache, IConfiguration configuration, TestKafka kafka, UserRepository userRepository,
+    // public AuthService(RedisUtil cache, IConfiguration configuration, TestKafka kafka, UserRepository userRepository,
+    //     UserValidator userValidator)
+    // {
+    //     _cache = cache;
+    //     _configuration = configuration;
+    //     _kafka = kafka;
+    //     _userRepository = userRepository;
+    //     _userValidator = userValidator;
+    //     _random = new Random();
+    // }
+    
+    public AuthService(RedisUtil cache, IConfiguration configuration, UserRepository userRepository,
         UserValidator userValidator)
     {
         _cache = cache;
         _configuration = configuration;
-        _kafka = kafka;
         _userRepository = userRepository;
         _userValidator = userValidator;
         _random = new Random();
@@ -40,7 +50,7 @@ public class AuthService
             throw new UserException("Login Exception", $"incorrect email", 400);
         }
 
-        _kafka.SendNotifyToLocalConsole($"Запрос на логинацию по {user.Email}");
+        // _kafka.SendNotifyToLocalConsole($"Запрос на логинацию по {user.Email}");
 
         int randomCode = _random.Next(1000, 9999 + 1);
 
@@ -66,7 +76,7 @@ public class AuthService
             Email = userWithCode.Email,
         });
 
-        JwtSecurityToken token = Jwt.CreateNewJwtToken(userWithCode.Email, _configuration);
+        JwtSecurityToken token = JwtUtil.CreateNewJwtToken(userWithCode.Email, _configuration);
 
         _cache.Remove(userWithCode.Email);
 

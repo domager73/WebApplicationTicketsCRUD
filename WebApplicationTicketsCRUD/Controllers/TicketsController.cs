@@ -45,7 +45,7 @@ public class TicketsController : ControllerBase
     [HttpPost("get-my")]
     public List<ResponseTicketDto> GetMyTickets()
     {
-        var email = Jwt.GetEmailInJwt(Request);
+        var email = JwtUtil.GetEmailInJwt(Request);
 
 
         return _ticketsService.GetTicketsByEmail(email);
